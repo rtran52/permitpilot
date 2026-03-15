@@ -10,6 +10,7 @@ import {
   Circle,
   ArrowLeft,
   ClipboardList,
+  AlertTriangle,
 } from "lucide-react";
 
 async function addCorrection(caseId: string, formData: FormData) {
@@ -71,16 +72,24 @@ export default async function CorrectionsPage({
 
       {/* Log correction form */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-            Log a Correction
-          </h2>
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+          <div className="w-7 h-7 rounded-md bg-red-50 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+          </div>
+          <div>
+            <h2 className="text-xs font-bold text-gray-700 uppercase tracking-widest">
+              Log a Correction
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Copy the correction text directly from the permit office notice
+            </p>
+          </div>
         </div>
         <div className="px-5 py-4">
           <form action={addCorrectionWithId} className="space-y-3">
             <Textarea
               name="content"
-              placeholder="Paste correction comment from permit office..."
+              placeholder={`e.g. "Missing homeowner signature on page 2 of the permit application. Required before the application can proceed."`}
               rows={3}
               required
               className="resize-none bg-gray-50 border-gray-200 text-sm focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 transition-colors"
@@ -123,7 +132,12 @@ export default async function CorrectionsPage({
                     {c.content}
                   </p>
                   <p className="text-xs text-red-400 mt-1.5">
-                    Logged {c.createdAt.toLocaleDateString()}
+                    Logged{" "}
+                    {c.createdAt.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </p>
                 </div>
                 <form action={resolveCorrection.bind(null, c.id, caseId)} className="shrink-0">
@@ -165,7 +179,12 @@ export default async function CorrectionsPage({
                     {c.content}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Resolved {c.resolvedAt?.toLocaleDateString()}
+                    Resolved{" "}
+                    {c.resolvedAt?.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </p>
                 </div>
               </div>
@@ -176,15 +195,16 @@ export default async function CorrectionsPage({
 
       {/* Empty state */}
       {open.length === 0 && resolved.length === 0 && (
-        <div className="rounded-xl border border-dashed border-gray-200 bg-white py-16 text-center">
+        <div className="rounded-xl border border-dashed border-gray-200 bg-white py-14 text-center px-6">
           <div className="mx-auto w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
             <ClipboardList className="w-5 h-5 text-gray-400" />
           </div>
           <p className="text-sm font-semibold text-gray-600">
             No corrections logged
           </p>
-          <p className="text-xs text-gray-400 mt-1">
-            Paste a comment from the permit office above to start tracking.
+          <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
+            When the permit office sends back a rejection or correction notice,
+            log each item above so nothing falls through the cracks.
           </p>
         </div>
       )}

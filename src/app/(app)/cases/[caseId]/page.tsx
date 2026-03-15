@@ -245,6 +245,47 @@ export default async function CaseDetailPage({
         </div>
       </div>
 
+      {/* Case quick-stats strip */}
+      <div className="flex items-center gap-5 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          <FileText className="w-3.5 h-3.5 text-gray-400" />
+          <span
+            className={`text-xs font-medium ${
+              allDocsReady ? "text-emerald-600" : "text-gray-500"
+            }`}
+          >
+            {uploadedRequiredCount}/{requiredCount} docs received
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <AlertTriangle className="w-3.5 h-3.5 text-gray-400" />
+          <span
+            className={`text-xs font-medium ${
+              unresolvedCorrections.length > 0
+                ? "text-red-600"
+                : "text-gray-400"
+            }`}
+          >
+            {unresolvedCorrections.length > 0
+              ? `${unresolvedCorrections.length} open correction${
+                  unresolvedCorrections.length !== 1 ? "s" : ""
+                }`
+              : "No open corrections"}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 text-gray-400">
+          <Clock className="w-3.5 h-3.5" />
+          <span className="text-xs">
+            Created{" "}
+            {permitCase.createdAt.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+      </div>
+
       {/* Recommended action — contextual guidance based on current status */}
       <NextActionGuide status={permitCase.status} caseId={caseId} />
 
@@ -401,6 +442,23 @@ export default async function CaseDetailPage({
 
         {/* Right col: actions panel */}
         <div className="space-y-4">
+          {/* Status transition — primary action, shown first */}
+          {nextStatuses.length > 0 && (
+            <div className="rounded-xl border border-blue-100 bg-blue-50/50 shadow-sm">
+              <div className="px-4 py-3.5 border-b border-blue-100">
+                <h2 className="text-xs font-bold text-blue-600 uppercase tracking-widest">
+                  Advance Status
+                </h2>
+                <p className="text-xs text-blue-400 mt-0.5">
+                  Move this case to the next stage
+                </p>
+              </div>
+              <div className="p-4">
+                <StatusTransitionForm caseId={caseId} nextStatuses={nextStatuses} />
+              </div>
+            </div>
+          )}
+
           {/* Document & corrections quick-links */}
           <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
             <div className="px-4 py-3.5 border-b border-gray-100">
@@ -448,23 +506,6 @@ export default async function CaseDetailPage({
               </Link>
             </div>
           </div>
-
-          {/* Status transition */}
-          {nextStatuses.length > 0 && (
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-              <div className="px-4 py-3.5 border-b border-gray-100">
-                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                  Advance Status
-                </h2>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Select the next stage for this case
-                </p>
-              </div>
-              <div className="p-4">
-                <StatusTransitionForm caseId={caseId} nextStatuses={nextStatuses} />
-              </div>
-            </div>
-          )}
 
           {/* Case metadata */}
           <div className="rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-3.5 space-y-2">

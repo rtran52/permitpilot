@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { CaseStatusBadge } from "./CaseStatusBadge";
 import type { CaseStatus } from "@prisma/client";
+import { ChevronRight } from "lucide-react";
 
 type CaseRow = {
   id: string;
@@ -61,6 +62,7 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
             <TableHead className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider py-3 px-5">
               Next Step
             </TableHead>
+            <TableHead className="py-3 px-3 w-8" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,7 +81,7 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
                     : "hover:bg-gray-50/70"
                 }`}
               >
-                <TableCell className="py-4 px-5">
+                <TableCell className="py-3.5 px-5">
                   <Link
                     href={`/cases/${c.id}`}
                     className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
@@ -90,20 +92,28 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
                     {c.city}, {c.state}
                   </p>
                 </TableCell>
-                <TableCell className="py-4 px-5 text-sm text-gray-600">
+                <TableCell className="py-3.5 px-5 text-sm text-gray-600">
                   {c.homeownerName}
                 </TableCell>
-                <TableCell className="py-4 px-5">
+                <TableCell className="py-3.5 px-5">
                   <CaseStatusBadge status={c.status} />
                 </TableCell>
-                <TableCell className="py-4 px-5 text-right">
+                <TableCell className="py-3.5 px-5 text-right">
                   <DaysInStatus days={days} />
                 </TableCell>
-                <TableCell className="py-4 px-5">
+                <TableCell className="py-3.5 px-5">
                   <NextStepHint
                     status={c.status}
                     hasOpenCorrections={c.corrections.length > 0}
                   />
+                </TableCell>
+                <TableCell className="py-3.5 px-3 text-right">
+                  <Link
+                    href={`/cases/${c.id}`}
+                    className="text-gray-300 hover:text-blue-500 transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4 inline-block" />
+                  </Link>
                 </TableCell>
               </TableRow>
             );

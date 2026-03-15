@@ -5,6 +5,8 @@ import { TradeType } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, Building2, User } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -63,98 +65,186 @@ export default async function NewCasePage() {
   });
 
   return (
-    <div className="max-w-xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">
-        New Permit Case
-      </h1>
+    <div className="max-w-2xl">
+      {/* Back link */}
+      <Link
+        href="/cases"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-6"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        All Cases
+      </Link>
 
-      <form action={createCase} className="space-y-5">
-        <fieldset className="space-y-4">
-          <legend className="text-sm font-medium text-gray-700 mb-2">
-            Property
-          </legend>
+      {/* Page header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          New Permit Case
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Enter the job details to open a permit tracking case. The document
+          checklist will load automatically based on the selected jurisdiction.
+        </p>
+      </div>
 
-          <div>
-            <Label htmlFor="address">Street Address</Label>
-            <Input id="address" name="address" required className="mt-1" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input id="city" name="city" required className="mt-1" />
+      <form action={createCase} className="space-y-4">
+        {/* Property section */}
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+            <div className="w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center shrink-0">
+              <Building2 className="w-3.5 h-3.5 text-blue-600" />
             </div>
             <div>
-              <Label htmlFor="zip">ZIP</Label>
-              <Input id="zip" name="zip" required className="mt-1" />
+              <p className="text-sm font-semibold text-gray-800">Property</p>
+              <p className="text-xs text-gray-400">
+                Job site address and permit jurisdiction
+              </p>
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="jurisdictionId">County / Jurisdiction</Label>
-            <Select name="jurisdictionId" required>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select jurisdiction" />
-              </SelectTrigger>
-              <SelectContent>
-                {jurisdictions.map((j) => (
-                  <SelectItem key={j.id} value={j.id}>
-                    {j.name}, {j.state}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {/* hidden state field — derived from jurisdiction in real app */}
-            <Input name="state" type="hidden" value="FL" readOnly />
-          </div>
-        </fieldset>
-
-        <fieldset className="space-y-4 pt-2">
-          <legend className="text-sm font-medium text-gray-700 mb-2">
-            Homeowner
-          </legend>
-
-          <div>
-            <Label htmlFor="homeownerName">Full Name</Label>
-            <Input
-              id="homeownerName"
-              name="homeownerName"
-              required
-              className="mt-1"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
+          <div className="px-5 py-5 space-y-4">
             <div>
-              <Label htmlFor="homeownerPhone">Phone</Label>
+              <Label htmlFor="address">Street Address</Label>
               <Input
-                id="homeownerPhone"
-                name="homeownerPhone"
-                type="tel"
+                id="address"
+                name="address"
                 required
-                className="mt-1"
+                placeholder="1234 Oak Street"
+                className="mt-1.5"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  name="city"
+                  required
+                  placeholder="Tampa"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="zip">ZIP Code</Label>
+                <Input
+                  id="zip"
+                  name="zip"
+                  required
+                  placeholder="33601"
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="jurisdictionId">County / Jurisdiction</Label>
+              <Select name="jurisdictionId" required>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select a county…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {jurisdictions.map((j) => (
+                    <SelectItem key={j.id} value={j.id}>
+                      {j.name}, {j.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* hidden state field — derived from jurisdiction in real app */}
+              <Input name="state" type="hidden" value="FL" readOnly />
+              <p className="text-xs text-gray-400 mt-1.5">
+                Determines which documents are required for this permit.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Homeowner section */}
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+            <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center shrink-0">
+              <User className="w-3.5 h-3.5 text-gray-500" />
             </div>
             <div>
-              <Label htmlFor="homeownerEmail">Email (optional)</Label>
-              <Input
-                id="homeownerEmail"
-                name="homeownerEmail"
-                type="email"
-                className="mt-1"
-              />
+              <p className="text-sm font-semibold text-gray-800">Homeowner</p>
+              <p className="text-xs text-gray-400">
+                Contact info used to request documents via SMS
+              </p>
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="externalRef">CRM Job # (optional)</Label>
-            <Input id="externalRef" name="externalRef" className="mt-1" />
-          </div>
-        </fieldset>
+          <div className="px-5 py-5 space-y-4">
+            <div>
+              <Label htmlFor="homeownerName">Full Name</Label>
+              <Input
+                id="homeownerName"
+                name="homeownerName"
+                required
+                placeholder="Jane Smith"
+                className="mt-1.5"
+              />
+            </div>
 
-        <div className="pt-2">
-          <Button type="submit" className="w-full">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="homeownerPhone">Phone Number</Label>
+                <Input
+                  id="homeownerPhone"
+                  name="homeownerPhone"
+                  type="tel"
+                  required
+                  placeholder="(813) 555-0100"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="homeownerEmail">
+                  Email{" "}
+                  <span className="text-gray-400 font-normal">(optional)</span>
+                </Label>
+                <Input
+                  id="homeownerEmail"
+                  name="homeownerEmail"
+                  type="email"
+                  placeholder="jane@example.com"
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+
+            <div className="pt-1 border-t border-gray-100">
+              <Label htmlFor="externalRef">
+                CRM Job #{" "}
+                <span className="text-gray-400 font-normal">(optional)</span>
+              </Label>
+              <Input
+                id="externalRef"
+                name="externalRef"
+                placeholder="e.g. JN-1042"
+                className="mt-1.5"
+              />
+              <p className="text-xs text-gray-400 mt-1.5">
+                Reference number from JobNimbus, AccuLynx, or your job
+                management tool.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions row */}
+        <div className="flex items-center justify-between pt-2">
+          <Link
+            href="/cases"
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            Cancel
+          </Link>
+          <Button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5 px-6"
+          >
             Create Case
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </form>

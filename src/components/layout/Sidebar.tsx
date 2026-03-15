@@ -9,6 +9,7 @@ import { UserButton } from "@clerk/nextjs";
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/cases", label: "Cases", icon: FolderOpen },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -52,15 +53,9 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Bottom */}
-      <div className="px-4 py-4 border-t border-slate-800 flex items-center justify-between">
+      {/* Bottom — user account only */}
+      <div className="px-4 py-4 border-t border-slate-800">
         <UserButton />
-        <Link
-          href="/settings/team"
-          className="text-slate-500 hover:text-slate-300 transition-colors p-1 rounded"
-        >
-          <Settings className="w-4 h-4" />
-        </Link>
       </div>
     </aside>
   );
