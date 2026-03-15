@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CaseStatus } from "@prisma/client";
+import { ArrowRight } from "lucide-react";
 
 const STATUS_LABELS: Record<CaseStatus, string> = {
   NEW: "New",
@@ -55,16 +56,16 @@ export function StatusTransitionForm({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="space-y-1.5">
         {nextStatuses.map((s) => (
           <button
             key={s}
             onClick={() => setSelected(s === selected ? null : s)}
-            className={`w-full text-left text-sm px-3 py-2 rounded-md border transition-colors ${
+            className={`w-full text-left text-sm px-3.5 py-2.5 rounded-lg border transition-all ${
               selected === s
-                ? "border-blue-500 bg-blue-50 text-blue-700"
-                : "border-gray-200 hover:border-gray-300 text-gray-700"
+                ? "border-blue-500 bg-blue-50 text-blue-700 font-medium shadow-sm"
+                : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-gray-700"
             }`}
           >
             {STATUS_LABELS[s]}
@@ -73,26 +74,37 @@ export function StatusTransitionForm({
       </div>
 
       {selected && (
-        <>
+        <div className="space-y-2.5 pt-1">
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Optional note..."
-            className="text-sm"
+            className="text-sm resize-none bg-white border-gray-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
             rows={2}
           />
           <Button
             size="sm"
-            className="w-full"
+            className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white"
             onClick={handleSubmit}
             disabled={isPending}
           >
-            {isPending ? "Updating..." : `Move to ${STATUS_LABELS[selected]}`}
+            {isPending ? (
+              "Updating..."
+            ) : (
+              <>
+                Move to {STATUS_LABELS[selected]}
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
+            )}
           </Button>
-        </>
+        </div>
       )}
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
