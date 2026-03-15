@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id        String       @id @default(cuid())
+  name      String
+  users     User[]
+  cases     PermitCase[]
+  createdAt DateTime     @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String
+  role      UserRole
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  OWNER
+  OFFICE_MANAGER
+}
+
+model PermitCase {
+  id               String            @id @default(cuid())
+  // Job / homeowner info
+  address          String
+  city             String
+  state            String
+  zip              String
+  trade            TradeType         @default(ROOFING)
+  homeownerName    String
+  homeownerPhone   String
+  homeownerEmail   String?
+  externalRef      String?
+  // Permit tracking
+  jurisdictionId   String
+  jurisdiction     Jurisdiction      @relation(fields: [jurisdictionId], references: [id])
+  status           CaseStatus        @default(NEW)
+  permitNumber     String?
+  submittedAt      DateTime?
+  approvedAt       DateTime?
+  notes            String?
+  // Meta
+  companyId        String
+  company          Company           @relation(fields: [companyId], references: [id])
+  documents        Document[]
+  documentRequests DocumentRequest[]
+  corrections      CorrectionNote[]
+  statusHistory    StatusHistory[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+enum TradeType {
+  ROOFING
+}
+
+enum CaseStatus {
+  NEW
+  DOCS_REQUESTED
+  DOCS_COMPLETE
+  SUBMITTED
+  CORRECTIONS_REQUIRED
+  RESUBMITTED
+  APPROVED
+  READY_TO_START
+  ON_HOLD
+}
+
+model Jurisdiction {
+  id           String                @id @default(cuid())
+  name         String
+  state        String
+  requirements DocumentRequirement[]
+  cases        PermitCase[]
+}
+
+model DocumentRequirement {
+  id             String       @id @default(cuid())
+  jurisdictionId String
+  jurisdiction   Jurisdiction @relation(fields: [jurisdictionId], references: [id])
+  trade          TradeType
+  docType        String
+  label          String
+  required       Boolean      @default(true)
+}
+
+model Document {
+  id         String     @id @default(cuid())
+  caseId     String
+  case       PermitCase @relation(fields: [caseId], references: [id])
+  docType    String
+  label      String
+  fileKey    String
+  fileUrl    String
+  uploadedBy String
+  createdAt  DateTime   @default(now())
+}
+
+model DocumentRequest {
+  id          String     @id @default(cuid())
+  caseId      String
+  case        PermitCase @relation(fields: [caseId], references: [id])
+  token       String     @unique
+  docType     String
+  label       String
+  expiresAt   DateTime
+  completedAt DateTime?
+  sentAt      DateTime   @default(now())
+}
+
+model CorrectionNote {
+  id         String     @id @default(cuid())
+  caseId     String
+  case       PermitCase @relation(fields: [caseId], references: [id])
+  content    String
+  resolved   Boolean    @default(false)
+  resolvedAt DateTime?
+  createdAt  DateTime   @default(now())
+}
+
+model StatusHistory {
+  id         String      @id @default(cuid())
+  caseId     String
+  case       PermitCase  @relation(fields: [caseId], references: [id])
+  fromStatus CaseStatus?
+  toStatus   CaseStatus
+  changedBy  String?
+  note       String?
+  createdAt  DateTime    @default(now())
+}
