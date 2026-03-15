@@ -1,7 +1,9 @@
 import "dotenv/config";
-import { PrismaClient, TradeType } from "../src/generated/prisma";
+import { PrismaClient, TradeType } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
 // Real roofing permit document requirements for Tampa Bay area FL jurisdictions.
 // All logic is data-driven — adding a new county or trade means adding rows here,
@@ -161,6 +163,15 @@ const jurisdictions = [
 ];
 
 async function main() {
+  // Ensure a Company row exists — required for user provisioning to work.
+  const existingCompany = await prisma.company.findFirst();
+  if (!existingCompany) {
+    await prisma.company.create({ data: { name: "My Company" } });
+    console.log("  ✓ Created default company");
+  } else {
+    console.log("  · Company already exists, skipping");
+  }
+
   console.log("Seeding jurisdictions and document requirements...");
 
   for (const j of jurisdictions) {

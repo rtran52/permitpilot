@@ -6,7 +6,11 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
 
-// Cloudflare R2 uses the S3-compatible API
+// Cloudflare R2 uses the S3-compatible API.
+// forcePathStyle puts the bucket name in the URL path instead of the subdomain:
+//   virtual-hosted (broken): https://<bucket>.<account>.r2.cloudflarestorage.com/key
+//   path-style (correct):    https://<account>.r2.cloudflarestorage.com/<bucket>/key
+// Multi-level subdomains on *.r2.cloudflarestorage.com cause ERR_SSL_VERSION_OR_CIPHER_MISMATCH.
 const r2 = new S3Client({
   region: "auto",
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -14,6 +18,12 @@ const r2 = new S3Client({
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   },
+  forcePathStyle: true,
+  // AWS SDK v3 ≥ 3.477 adds CRC32 checksums to PutObject by default.
+  // R2 does not implement this AWS extension and rejects those requests.
+  // "WHEN_REQUIRED" restores pre-3.477 behaviour: checksums only when
+  // the operation explicitly requires them.
+  requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
 const BUCKET = process.env.R2_BUCKET_NAME!;

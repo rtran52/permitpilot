@@ -1,12 +1,16 @@
 import twilio from "twilio";
 
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+// Lazy-initialize so the client isn't constructed at module load time
+// (avoids build errors when env vars are not set)
+function getTwilioClient() {
+  return twilio(
+    process.env.TWILIO_ACCOUNT_SID!,
+    process.env.TWILIO_AUTH_TOKEN!
+  );
+}
 
-const FROM = process.env.TWILIO_FROM_NUMBER!;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
+const FROM = () => process.env.TWILIO_FROM_NUMBER!;
+const APP_URL = () => process.env.NEXT_PUBLIC_APP_URL!;
 
 export async function sendDocumentRequestSms({
   to,
@@ -19,13 +23,13 @@ export async function sendDocumentRequestSms({
   docLabel: string;
   token: string;
 }) {
-  const uploadUrl = `${APP_URL}/upload/${token}`;
+  const uploadUrl = `${APP_URL()}/upload/${token}`;
   const body =
     `Hi ${homeownerName}, your roofing contractor needs one more document to pull your permit: ` +
     `"${docLabel}". Please upload it here: ${uploadUrl} ` +
     `(link expires in 72 hours)`;
 
-  return client.messages.create({ to, from: FROM, body });
+  return getTwilioClient().messages.create({ to, from: FROM(), body });
 }
 
 export async function sendPermitApprovedSms({
@@ -42,5 +46,5 @@ export async function sendPermitApprovedSms({
     (permitNumber ? ` (Permit #${permitNumber})` : "") +
     `. Your contractor will be in touch to schedule the start date.`;
 
-  return client.messages.create({ to, from: FROM, body });
+  return getTwilioClient().messages.create({ to, from: FROM(), body });
 }

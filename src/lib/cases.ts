@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { CaseStatus } from "@/generated/prisma";
+import { CaseStatus } from "@prisma/client";
 
 // Valid status transitions. All business logic for what is allowed lives here.
 const ALLOWED_TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
