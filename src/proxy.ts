@@ -3,8 +3,9 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
-  "/upload/(.*)",   // homeowner magic-link upload pages
-  "/api/upload/presign", // called from the public upload page
+  "/upload/(.*)",        // homeowner magic-link upload pages
+  "/api/upload/presign", // step 1: get R2 presigned URL
+  "/api/upload/complete", // step 3: record completed upload — homeowner has no Clerk session
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

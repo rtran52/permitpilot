@@ -20,6 +20,13 @@ async function addCorrection(caseId: string, formData: FormData) {
   const content = formData.get("content") as string;
   if (!content?.trim()) return;
 
+  // Verify the case belongs to this user's company
+  const permitCase = await prisma.permitCase.findFirst({
+    where: { id: caseId, companyId: user.companyId },
+    select: { id: true },
+  });
+  if (!permitCase) return;
+
   await prisma.correctionNote.create({
     data: { caseId, content: content.trim() },
   });
@@ -45,6 +52,13 @@ async function addCorrection(caseId: string, formData: FormData) {
 
 async function resolveCorrection(correctionId: string, caseId: string) {
   "use server";
+  const user = await requireUser();
+  // Verify the correction belongs to this user's company before mutating
+  const note = await prisma.correctionNote.findFirst({
+    where: { id: correctionId, case: { companyId: user.companyId } },
+    select: { id: true },
+  });
+  if (!note) return;
   await prisma.correctionNote.update({
     where: { id: correctionId },
     data: { resolved: true, resolvedAt: new Date() },

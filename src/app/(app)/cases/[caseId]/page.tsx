@@ -273,8 +273,14 @@ export default async function CaseDetailPage({
   // Server action: save case notes
   async function saveNotes(caseId: string, formData: FormData) {
     "use server";
-    await requireUser();
+    const user = await requireUser();
     const notes = (formData.get("notes") as string)?.trim() || null;
+    // Verify ownership before writing
+    const owns = await prisma.permitCase.findFirst({
+      where: { id: caseId, companyId: user.companyId },
+      select: { id: true },
+    });
+    if (!owns) return;
     await prisma.permitCase.update({
       where: { id: caseId },
       data: { notes },

@@ -1,17 +1,21 @@
 /**
  * Called by the homeowner upload form after the file is uploaded to R2.
  * Creates the Document record and marks the DocumentRequest as completed.
+ *
+ * Security: this route is public (no Clerk session). We validate the
+ * client-supplied fileKey against the server-known caseId + docType from the
+ * DocumentRequest, and re-derive publicUrl server-side so neither can be
+ * substituted by the client.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getPublicUrl } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
   try {
-    const { token, fileKey, publicUrl, filename } = await req.json() as {
+    const { token, fileKey } = await req.json() as {
       token: string;
       fileKey: string;
-      publicUrl: string;
-      filename: string;
     };
 
     const request = await prisma.documentRequest.findUnique({
@@ -22,6 +26,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
     }
 
+    // Validate fileKey belongs to this case and docType — prevents a client
+    // from substituting a key from a different case or an external URL.
+    const expectedPrefix = `cases/${request.caseId}/${request.docType}/`;
+    if (!fileKey || !fileKey.startsWith(expectedPrefix)) {
+      return NextResponse.json({ error: "Invalid file key" }, { status: 400 });
+    }
+
+    // Derive publicUrl from the validated fileKey; never trust the client's value.
+    const safePublicUrl = getPublicUrl(fileKey);
+
     await prisma.$transaction([
       prisma.document.create({
         data: {
@@ -29,7 +43,7 @@ export async function POST(req: NextRequest) {
           docType: request.docType,
           label: request.label,
           fileKey,
-          fileUrl: publicUrl,
+          fileUrl: safePublicUrl,
           uploadedBy: "HOMEOWNER",
         },
       }),
