@@ -102,12 +102,15 @@ export async function getCasesForCompany(
   return prisma.permitCase.findMany({
     where: {
       companyId,
+      archived: false,
       ...(filters?.status && { status: filters.status }),
       ...(filters?.q && {
         OR: [
           { address: { contains: filters.q, mode: "insensitive" } },
           { homeownerName: { contains: filters.q, mode: "insensitive" } },
           { city: { contains: filters.q, mode: "insensitive" } },
+          { permitNumber: { contains: filters.q, mode: "insensitive" } },
+          { externalRef: { contains: filters.q, mode: "insensitive" } },
         ],
       }),
     },
@@ -116,5 +119,31 @@ export async function getCasesForCompany(
       corrections: { where: { resolved: false }, select: { id: true } },
     },
     orderBy: { updatedAt: "desc" },
+  });
+}
+
+export async function getArchivedCasesForCompany(
+  companyId: string,
+  filters?: { q?: string }
+) {
+  return prisma.permitCase.findMany({
+    where: {
+      companyId,
+      archived: true,
+      ...(filters?.q && {
+        OR: [
+          { address: { contains: filters.q, mode: "insensitive" } },
+          { homeownerName: { contains: filters.q, mode: "insensitive" } },
+          { city: { contains: filters.q, mode: "insensitive" } },
+          { permitNumber: { contains: filters.q, mode: "insensitive" } },
+          { externalRef: { contains: filters.q, mode: "insensitive" } },
+        ],
+      }),
+    },
+    include: {
+      jurisdiction: { select: { name: true, state: true } },
+      corrections: { where: { resolved: false }, select: { id: true } },
+    },
+    orderBy: { archivedAt: "desc" },
   });
 }

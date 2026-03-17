@@ -5,160 +5,70 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// Real roofing permit document requirements for Tampa Bay area FL jurisdictions.
+// Real roofing permit document requirements for Florida jurisdictions.
 // All logic is data-driven — adding a new county or trade means adding rows here,
 // not changing application code.
 
+const roofingDocs = (overrides: { docType: string; label: string; required: boolean }[] = []) => [
+  { trade: TradeType.ROOFING, docType: "SIGNED_CONTRACT",        label: "Signed Contract",                            required: true  },
+  { trade: TradeType.ROOFING, docType: "PERMIT_APPLICATION",     label: "Permit Application (Signed by Owner)",        required: true  },
+  { trade: TradeType.ROOFING, docType: "NOTICE_OF_COMMENCEMENT", label: "Notice of Commencement (if job > $2,500)",    required: true  },
+  { trade: TradeType.ROOFING, docType: "PRODUCT_APPROVAL",       label: "Florida Product Approval (roofing system)",  required: true  },
+  { trade: TradeType.ROOFING, docType: "CONTRACTORS_LICENSE",    label: "Contractor's License Copy",                  required: true  },
+  { trade: TradeType.ROOFING, docType: "PROOF_OF_INSURANCE",     label: "Proof of Liability Insurance",               required: true  },
+  { trade: TradeType.ROOFING, docType: "HOA_APPROVAL",           label: "HOA Approval Letter",                        required: false },
+  ...overrides.map((o) => ({ trade: TradeType.ROOFING, ...o })),
+];
+
 const jurisdictions = [
-  {
-    name: "Hillsborough County",
-    state: "FL",
-    requirements: [
-      {
-        trade: TradeType.ROOFING,
-        docType: "SIGNED_CONTRACT",
-        label: "Signed Contract",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PERMIT_APPLICATION",
-        label: "Permit Application (Signed by Owner)",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "NOTICE_OF_COMMENCEMENT",
-        label: "Notice of Commencement (if job > $2,500)",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PRODUCT_APPROVAL",
-        label: "Florida Product Approval (roofing system)",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "HOA_APPROVAL",
-        label: "HOA Approval Letter",
-        required: false,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "CONTRACTORS_LICENSE",
-        label: "Contractor's License Copy",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PROOF_OF_INSURANCE",
-        label: "Proof of Liability Insurance",
-        required: true,
-      },
-    ],
+  // ── Tampa Bay ────────────────────────────────────────────────────────────
+  { name: "Hillsborough County", state: "FL", requirements: roofingDocs() },
+  { name: "Pinellas County",     state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: true },
+    ]),
   },
-  {
-    name: "Pinellas County",
-    state: "FL",
-    requirements: [
-      {
-        trade: TradeType.ROOFING,
-        docType: "SIGNED_CONTRACT",
-        label: "Signed Contract",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PERMIT_APPLICATION",
-        label: "Permit Application (Owner Signature Required)",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "NOTICE_OF_COMMENCEMENT",
-        label: "Notice of Commencement",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PRODUCT_APPROVAL",
-        label: "Florida Product Approval",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "HOA_APPROVAL",
-        label: "HOA Approval Letter",
-        required: false,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "CONTRACTORS_LICENSE",
-        label: "Contractor's License Copy",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PROOF_OF_INSURANCE",
-        label: "Proof of Liability Insurance",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "SCOPE_OF_WORK",
-        label: "Scope of Work",
-        required: true,
-      },
-    ],
+  { name: "Pasco County",        state: "FL", requirements: roofingDocs() },
+  { name: "Manatee County",      state: "FL", requirements: roofingDocs() },
+  { name: "Sarasota County",     state: "FL", requirements: roofingDocs() },
+
+  // ── Southwest FL ─────────────────────────────────────────────────────────
+  { name: "Lee County",          state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: true },
+    ]),
   },
-  {
-    name: "Pasco County",
-    state: "FL",
-    requirements: [
-      {
-        trade: TradeType.ROOFING,
-        docType: "SIGNED_CONTRACT",
-        label: "Signed Contract",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PERMIT_APPLICATION",
-        label: "Permit Application",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "NOTICE_OF_COMMENCEMENT",
-        label: "Notice of Commencement",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PRODUCT_APPROVAL",
-        label: "Florida Product Approval",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "HOA_APPROVAL",
-        label: "HOA Approval Letter",
-        required: false,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "CONTRACTORS_LICENSE",
-        label: "Contractor's License Copy",
-        required: true,
-      },
-      {
-        trade: TradeType.ROOFING,
-        docType: "PROOF_OF_INSURANCE",
-        label: "Proof of Liability Insurance",
-        required: true,
-      },
-    ],
+  { name: "Collier County",      state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: true },
+    ]),
+  },
+
+  // ── Central FL ───────────────────────────────────────────────────────────
+  { name: "Orange County",       state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: false },
+    ]),
+  },
+  { name: "Osceola County",      state: "FL", requirements: roofingDocs() },
+  { name: "Brevard County",      state: "FL", requirements: roofingDocs() },
+  { name: "Volusia County",      state: "FL", requirements: roofingDocs() },
+
+  // ── Northeast FL ─────────────────────────────────────────────────────────
+  { name: "Duval County",        state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: true },
+    ]),
+  },
+
+  // ── South FL ─────────────────────────────────────────────────────────────
+  { name: "Palm Beach County",   state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: true },
+    ]),
+  },
+  { name: "Broward County",      state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK", label: "Scope of Work", required: true },
+    ]),
+  },
+  { name: "Miami-Dade County",   state: "FL", requirements: roofingDocs([
+      { docType: "SCOPE_OF_WORK",      label: "Scope of Work",               required: true  },
+      { docType: "PRODUCT_APPROVAL_2", label: "NOA (Miami-Dade Product Notice of Acceptance)", required: true },
+    ]),
   },
 ];
 

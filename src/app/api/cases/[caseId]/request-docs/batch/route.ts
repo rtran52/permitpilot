@@ -30,6 +30,14 @@ export async function POST(
       return NextResponse.json({ error: "No docs provided" }, { status: 400 });
     }
 
+    // Guard: phone is required to send SMS. Check before creating any DB records.
+    if (!homeownerPhone?.trim()) {
+      return NextResponse.json(
+        { error: "No phone number on file. Add the homeowner's phone number to the case before sending document requests." },
+        { status: 400 }
+      );
+    }
+
     const permitCase = await prisma.permitCase.findFirst({
       where: { id: caseId, companyId: user.companyId },
       select: { id: true, status: true },

@@ -198,17 +198,16 @@ export default async function SettingsPage() {
         icon={<Bell className="w-3.5 h-3.5 text-gray-500" />}
         iconBg="bg-gray-100"
         title="Notifications"
-        subtitle="Automated alerts sent to your workspace"
+        subtitle="Automated email alerts — coming in a future update"
       >
         <div className="divide-y divide-gray-100">
           {NOTIFICATION_RULES.map((rule) => (
             <div
               key={rule.label}
-              className="flex items-start gap-3 px-5 py-3.5"
+              className="flex items-start gap-3 px-5 py-3.5 opacity-60"
             >
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 shrink-0 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                Enabled
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5 shrink-0 mt-0.5">
+                Coming soon
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800">
@@ -222,7 +221,7 @@ export default async function SettingsPage() {
                 {rule.channels.map((ch) => (
                   <span
                     key={ch}
-                    className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5"
+                    className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5"
                   >
                     {ch}
                   </span>
@@ -232,8 +231,8 @@ export default async function SettingsPage() {
           ))}
         </div>
         <CardFootnote>
-          Notifications fire automatically for all Owner and Office Manager
-          accounts. Per-user preferences are coming in a future update.
+          Email notifications are planned. Per-user preferences will be
+          configurable when this ships.
         </CardFootnote>
       </SettingsCard>
 

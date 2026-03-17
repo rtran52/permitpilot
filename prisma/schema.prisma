@@ -51,6 +51,9 @@ model PermitCase {
   submittedAt      DateTime?
   approvedAt       DateTime?
   notes            String?
+  // Archive
+  archived         Boolean           @default(false)
+  archivedAt       DateTime?
   // Meta
   companyId        String
   company          Company           @relation(fields: [companyId], references: [id])

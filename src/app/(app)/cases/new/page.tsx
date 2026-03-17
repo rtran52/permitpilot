@@ -188,12 +188,14 @@ export default async function NewCasePage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="homeownerPhone">Phone Number</Label>
+                <Label htmlFor="homeownerPhone">
+                  Phone Number{" "}
+                  <span className="text-gray-400 font-normal">(for SMS requests)</span>
+                </Label>
                 <Input
                   id="homeownerPhone"
                   name="homeownerPhone"
                   type="tel"
-                  required
                   placeholder="(813) 555-0100"
                   className="mt-1.5"
                 />

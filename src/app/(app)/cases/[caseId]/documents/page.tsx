@@ -133,6 +133,15 @@ export default async function DocumentsPage({
             <FileCheck className="w-3.5 h-3.5 shrink-0" />
             All required documents received — ready to submit to the permit office
           </div>
+        ) : !permitCase.homeownerPhone ? (
+          <div className="flex items-center gap-2 mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            No phone number on file —{" "}
+            <a href={`/cases/${caseId}/edit`} className="font-semibold underline underline-offset-2 hover:text-amber-900">
+              add it to the case
+            </a>{" "}
+            to send SMS document requests. You can still upload documents directly below.
+          </div>
         ) : (
           <p className="text-xs text-gray-400 mt-2.5">
             {allRequired.length - requiredUploaded} document

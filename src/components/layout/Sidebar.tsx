@@ -3,14 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, FolderOpen, Settings } from "lucide-react";
+import { LayoutDashboard, FolderOpen, Archive, Settings } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
-const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/cases", label: "Cases", icon: FolderOpen },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
+// isActive rules:
+// /cases      → active for /cases and /cases/* but NOT /cases/archived/*
+// /cases/archived → active only for /cases/archived and /cases/archived/*
+// others      → startsWith match
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/cases") {
+    return (
+      pathname === "/cases" ||
+      (pathname.startsWith("/cases/") && !pathname.startsWith("/cases/archived"))
+    );
+  }
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -35,13 +43,18 @@ export function Sidebar() {
           Navigation
         </p>
         <div className="space-y-0.5">
-          {nav.map(({ href, label, icon: Icon }) => (
+          {[
+            { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+            { href: "/cases", label: "Cases", icon: FolderOpen },
+            { href: "/cases/archived", label: "Archived", icon: Archive },
+            { href: "/settings", label: "Settings", icon: Settings },
+          ].map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
               className={cn(
                 "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-                pathname.startsWith(href)
+                isActive(pathname, href)
                   ? "bg-slate-800 text-white font-medium"
                   : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
               )}

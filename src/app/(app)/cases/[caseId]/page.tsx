@@ -28,7 +28,9 @@ import {
   Upload,
   StickyNote,
   PauseCircle,
+  Archive,
 } from "lucide-react";
+import { ArchiveButton } from "@/components/cases/ArchiveButton";
 
 // ── Status transition map ─────────────────────────────────────────────────────
 
@@ -317,13 +319,34 @@ export default async function CaseDetailPage({
       {/* Back link */}
       <div>
         <Link
-          href="/cases"
+          href={permitCase.archived ? "/cases/archived" : "/cases"}
           className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          All Cases
+          {permitCase.archived ? "Archived Cases" : "All Cases"}
         </Link>
       </div>
+
+      {/* Archived banner */}
+      {permitCase.archived && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 flex items-center gap-3">
+          <div className="w-7 h-7 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
+            <Archive className="w-4 h-4 text-gray-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-gray-700">
+              This case is archived
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              It won&apos;t appear in your active cases or dashboard.
+              {permitCase.archivedAt && (
+                <> Archived on {permitCase.archivedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.</>
+              )}
+            </p>
+          </div>
+          <ArchiveButton caseId={caseId} archived={true} />
+        </div>
+      )}
 
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
@@ -358,6 +381,8 @@ export default async function CaseDetailPage({
               Edit
             </Link>
           </Button>
+          {/* Archive / Unarchive */}
+          <ArchiveButton caseId={caseId} archived={permitCase.archived} />
           <CaseStatusBadge status={permitCase.status} />
           <span
             className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -415,6 +440,19 @@ export default async function CaseDetailPage({
             <span className="text-xs text-gray-400">Job #</span>
             <span className="text-xs font-medium text-gray-600">
               {permitCase.externalRef}
+            </span>
+          </div>
+        )}
+        {permitCase.submittedAt && (
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-gray-400" />
+            <span className="text-xs text-gray-400">Submitted</span>
+            <span className="text-xs font-medium text-gray-600">
+              {permitCase.submittedAt.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
             </span>
           </div>
         )}
