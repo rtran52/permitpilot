@@ -10,11 +10,19 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const cases = await getCasesForCompany(user.companyId);
 
+  // These statuses are waiting on a third party — stale days are expected
+  // and should not generate false "needs attention" alerts.
+  const WAITING_ON_THIRD_PARTY = new Set<CaseStatus>([
+    CaseStatus.SUBMITTED,
+    CaseStatus.RESUBMITTED,
+    CaseStatus.READY_TO_START,
+  ]);
+
   const needsAttention = cases.filter(
     (c) =>
       c.status === CaseStatus.CORRECTIONS_REQUIRED ||
-      c.corrections.length > 0 ||
-      staleDays(c.updatedAt) >= 5
+      (c.corrections.length > 0 && c.status !== CaseStatus.READY_TO_START) ||
+      (staleDays(c.updatedAt) >= 5 && !WAITING_ON_THIRD_PARTY.has(c.status))
   );
 
   const activeCases = cases.filter(
@@ -23,11 +31,9 @@ export default async function DashboardPage() {
       c.status !== CaseStatus.APPROVED
   );
 
+  // Only APPROVED cases need to be scheduled — READY_TO_START jobs are already in flight.
   const recentlyApproved = cases.filter(
-    (c) =>
-      (c.status === CaseStatus.APPROVED ||
-        c.status === CaseStatus.READY_TO_START) &&
-      staleDays(c.updatedAt) <= 14
+    (c) => c.status === CaseStatus.APPROVED && staleDays(c.updatedAt) <= 14
   );
 
   return (
@@ -119,7 +125,7 @@ export default async function DashboardPage() {
 
       {/* Active cases */}
       <section id="active">
-        <SectionHeader label="Permit Pipeline" count={activeCases.length} />
+        <SectionHeader label="Active Permits" count={activeCases.length} />
         {activeCases.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-200 bg-white py-16 text-center">
             <div className="mx-auto w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">

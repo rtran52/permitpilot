@@ -26,7 +26,6 @@ const ALLOWED_TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
     CaseStatus.SUBMITTED,
     CaseStatus.CORRECTIONS_REQUIRED,
     CaseStatus.RESUBMITTED,
-    CaseStatus.APPROVED,
   ],
 };
 
@@ -38,7 +37,9 @@ export async function transitionCaseStatus(
   caseId: string,
   toStatus: CaseStatus,
   changedBy: string | null,
-  note?: string
+  note?: string,
+  /** Recorded when advancing to SUBMITTED */
+  permitNumber?: string
 ) {
   const permitCase = await prisma.permitCase.findUnique({
     where: { id: caseId },
@@ -58,7 +59,10 @@ export async function transitionCaseStatus(
       where: { id: caseId },
       data: {
         status: toStatus,
-        ...(toStatus === CaseStatus.SUBMITTED && { submittedAt: new Date() }),
+        ...(toStatus === CaseStatus.SUBMITTED && {
+          submittedAt: new Date(),
+          ...(permitNumber && { permitNumber }),
+        }),
         ...(toStatus === CaseStatus.APPROVED && { approvedAt: new Date() }),
       },
     }),
@@ -91,9 +95,22 @@ export async function getCaseWithDetails(caseId: string, companyId: string) {
   });
 }
 
-export async function getCasesForCompany(companyId: string) {
+export async function getCasesForCompany(
+  companyId: string,
+  filters?: { q?: string; status?: CaseStatus }
+) {
   return prisma.permitCase.findMany({
-    where: { companyId },
+    where: {
+      companyId,
+      ...(filters?.status && { status: filters.status }),
+      ...(filters?.q && {
+        OR: [
+          { address: { contains: filters.q, mode: "insensitive" } },
+          { homeownerName: { contains: filters.q, mode: "insensitive" } },
+          { city: { contains: filters.q, mode: "insensitive" } },
+        ],
+      }),
+    },
     include: {
       jurisdiction: { select: { name: true, state: true } },
       corrections: { where: { resolved: false }, select: { id: true } },

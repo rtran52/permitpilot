@@ -57,7 +57,7 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
               Status
             </TableHead>
             <TableHead className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider py-3 px-5 text-right">
-              Age
+              Updated
             </TableHead>
             <TableHead className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider py-3 px-5">
               Next Step
@@ -90,6 +90,8 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
                   </Link>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {c.city}, {c.state}
+                    <span className="mx-1.5 text-gray-200">·</span>
+                    <span className="font-mono">#{c.id.slice(-6).toUpperCase()}</span>
                   </p>
                 </TableCell>
                 <TableCell className="py-3.5 px-5 text-sm text-gray-600">

@@ -12,7 +12,12 @@ export async function POST(
     const user = await requireUser();
     const { caseId } = await params;
     const body = await req.json();
-    const { toStatus, note } = body as { toStatus: string; note?: string };
+    const { toStatus, note, permitNumber } = body as {
+      toStatus: string;
+      note?: string;
+      /** Only used when transitioning to SUBMITTED */
+      permitNumber?: string;
+    };
 
     // Validate that toStatus is a real CaseStatus
     if (!Object.values(CaseStatus).includes(toStatus as CaseStatus)) {
@@ -32,7 +37,8 @@ export async function POST(
       caseId,
       toStatus as CaseStatus,
       user.id,
-      note
+      note,
+      permitNumber
     );
 
     return NextResponse.json({ status: updated.status });

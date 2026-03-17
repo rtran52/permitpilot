@@ -12,6 +12,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { RequestDocButton } from "@/components/cases/RequestDocButton";
+import { OfficeUploadButton } from "@/components/cases/OfficeUploadButton";
+import { BatchRequestButton } from "@/components/cases/BatchRequestButton";
 
 export default async function DocumentsPage({
   params,
@@ -44,7 +46,7 @@ export default async function DocumentsPage({
 
   const missingRequired = allRequired.filter(
     (r) => !uploadedByType[r.docType] && !pendingByType[r.docType]
-  ).length;
+  );
   const requestedCount = allRequired.filter(
     (r) => !uploadedByType[r.docType] && pendingByType[r.docType]
   ).length;
@@ -72,10 +74,10 @@ export default async function DocumentsPage({
           <div>
             <p className="text-sm font-semibold text-gray-800">Required documents</p>
             <div className="flex items-center gap-3 mt-1.5">
-              {missingRequired > 0 && (
+              {missingRequired.length > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
                   <AlertCircle className="w-3 h-3" />
-                  {missingRequired} missing
+                  {missingRequired.length} missing
                 </span>
               )}
               {requestedCount > 0 && (
@@ -92,17 +94,28 @@ export default async function DocumentsPage({
               )}
             </div>
           </div>
-          <div className="text-right shrink-0">
-            <span
-              className={`text-2xl font-bold tabular-nums ${
-                allRequiredDone ? "text-emerald-600" : "text-gray-800"
-              }`}
-            >
-              {requiredUploaded}
-            </span>
-            <span className="text-lg font-semibold text-gray-300">
-              /{allRequired.length}
-            </span>
+          <div className="flex items-center gap-3 shrink-0">
+            <BatchRequestButton
+              caseId={caseId}
+              docs={missingRequired.map((r) => ({
+                docType: r.docType,
+                docLabel: r.label,
+              }))}
+              homeownerPhone={permitCase.homeownerPhone}
+              homeownerName={permitCase.homeownerName}
+            />
+            <div className="text-right">
+              <span
+                className={`text-2xl font-bold tabular-nums ${
+                  allRequiredDone ? "text-emerald-600" : "text-gray-800"
+                }`}
+              >
+                {requiredUploaded}
+              </span>
+              <span className="text-lg font-semibold text-gray-300">
+                /{allRequired.length}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -233,10 +246,6 @@ function DocSection({
               <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-1.5 py-0.5 shrink-0">
                 Received
               </span>
-            ) : state === "requested" ? (
-              <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-1.5 py-0.5 shrink-0">
-                Requested
-              </span>
             ) : state === "missing" ? (
               <span className="text-[10px] font-bold uppercase tracking-wide text-red-500 bg-red-50 border border-red-200 rounded-full px-1.5 py-0.5 shrink-0">
                 Missing
@@ -293,15 +302,22 @@ function DocSection({
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 ) : (
-                  <RequestDocButton
-                    caseId={caseId}
-                    docType={req.docType}
-                    docLabel={req.label}
-                    homeownerPhone={homeownerPhone}
-                    homeownerName={homeownerName}
-                    alreadySent={state === "requested"}
-                    priority={isRequired && state === "missing"}
-                  />
+                  <>
+                    <RequestDocButton
+                      caseId={caseId}
+                      docType={req.docType}
+                      docLabel={req.label}
+                      homeownerPhone={homeownerPhone}
+                      homeownerName={homeownerName}
+                      alreadySent={state === "requested"}
+                      priority={isRequired && state === "missing"}
+                    />
+                    <OfficeUploadButton
+                      caseId={caseId}
+                      docType={req.docType}
+                      docLabel={req.label}
+                    />
+                  </>
                 )}
               </div>
             </div>

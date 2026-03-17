@@ -126,19 +126,6 @@ export default async function SettingsPage() {
             placeholder="Your company name"
           />
 
-          {/* Support phone — not yet in schema */}
-          <SettingsRow label="Support Phone">
-            <span className="text-sm text-gray-400 italic">
-              Not configured
-            </span>
-          </SettingsRow>
-
-          {/* Support email — not yet in schema */}
-          <SettingsRow label="Support Email">
-            <span className="text-sm text-gray-400 italic">
-              Not configured
-            </span>
-          </SettingsRow>
         </div>
         <CardFootnote>
           Support phone and email will be configurable in a future update.
@@ -221,7 +208,7 @@ export default async function SettingsPage() {
             >
               <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 shrink-0 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                On
+                Enabled
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800">

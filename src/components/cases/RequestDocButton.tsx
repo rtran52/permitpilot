@@ -93,13 +93,28 @@ export function RequestDocButton({
     );
   }
 
-  // Already requested — waiting on homeowner
+  // Already requested — show re-send option
   if (alreadySent) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-        Requested
-      </span>
+      <div className="text-right">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRequest}
+          disabled={isPending}
+          className="text-xs h-7 gap-1.5 text-amber-700 border-amber-200 hover:bg-amber-50"
+        >
+          {isPending ? (
+            "Sending..."
+          ) : (
+            <>
+              <Send className="w-3 h-3" />
+              Re-send
+            </>
+          )}
+        </Button>
+        {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+      </div>
     );
   }
 

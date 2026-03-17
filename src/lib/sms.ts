@@ -32,6 +32,31 @@ export async function sendDocumentRequestSms({
   return getTwilioClient().messages.create({ to, from: FROM(), body });
 }
 
+/** Sends one combined SMS listing all missing docs, each with its own upload link. */
+export async function sendBatchDocumentRequestSms({
+  to,
+  homeownerName,
+  docs,
+}: {
+  to: string;
+  homeownerName: string;
+  docs: { label: string; token: string }[];
+}) {
+  const appUrl = APP_URL();
+  const lines = docs
+    .map((d, i) => `${i + 1}. ${d.label}: ${appUrl}/upload/${d.token}`)
+    .join("\n");
+
+  const body =
+    `Hi ${homeownerName}, your contractor needs ${docs.length} document${
+      docs.length !== 1 ? "s" : ""
+    } for your permit:\n` +
+    lines +
+    `\n(Links expire in 72 hours)`;
+
+  return getTwilioClient().messages.create({ to, from: FROM(), body });
+}
+
 export async function sendPermitApprovedSms({
   to,
   homeownerName,

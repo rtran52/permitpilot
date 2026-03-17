@@ -1,10 +1,11 @@
 import { requireUser } from "@/lib/auth";
-import { getCaseWithDetails } from "@/lib/cases";
+import { getCaseWithDetails, transitionCaseStatus, canTransition } from "@/lib/cases";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { CaseStatus } from "@prisma/client";
 import {
   CheckCircle2,
   Circle,
@@ -15,12 +16,30 @@ import {
 
 async function addCorrection(caseId: string, formData: FormData) {
   "use server";
+  const user = await requireUser();
   const content = formData.get("content") as string;
   if (!content?.trim()) return;
 
   await prisma.correctionNote.create({
     data: { caseId, content: content.trim() },
   });
+
+  // Auto-advance to CORRECTIONS_REQUIRED when a correction is logged while
+  // the case is SUBMITTED or RESUBMITTED — the only states where a permit-office
+  // rejection is expected. This keeps the status honest without a manual step.
+  const current = await prisma.permitCase.findUnique({
+    where: { id: caseId },
+    select: { status: true },
+  });
+  if (current && canTransition(current.status, CaseStatus.CORRECTIONS_REQUIRED)) {
+    await transitionCaseStatus(
+      caseId,
+      CaseStatus.CORRECTIONS_REQUIRED,
+      user.id,
+      "Status auto-advanced when correction was logged"
+    );
+  }
+
   redirect(`/cases/${caseId}/corrections`);
 }
 
@@ -191,6 +210,30 @@ export default async function CorrectionsPage({
             ))}
           </div>
         </section>
+      )}
+
+      {/* All corrections resolved — next step prompt */}
+      {open.length === 0 && resolved.length > 0 && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-emerald-800">
+              All corrections resolved
+            </p>
+            <p className="text-sm text-emerald-700 mt-0.5">
+              Resubmit the updated application to the permit office, then advance
+              the case status to <strong>Resubmitted</strong>.
+            </p>
+            <Link
+              href={`/cases/${caseId}`}
+              className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 hover:text-emerald-900 mt-2"
+            >
+              Go back to case → advance status
+            </Link>
+          </div>
+        </div>
       )}
 
       {/* Empty state */}
