@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
-import { CaseStatus } from "@prisma/client";
+import { CaseStatus } from "@/lib/case-status";
 
 const STATUS_FILTER_OPTIONS: { label: string; value: CaseStatus | "ALL" }[] = [
   { label: "All", value: "ALL" },

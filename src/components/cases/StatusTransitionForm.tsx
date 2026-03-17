@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CaseStatus } from "@prisma/client";
+import { CaseStatus } from "@/lib/case-status";
 import { ArrowRight, AlertCircle } from "lucide-react";
 
 const STATUS_LABELS: Record<CaseStatus, string> = {
