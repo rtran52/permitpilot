@@ -1,4 +1,4 @@
-import { CaseStatus } from "@prisma/client";
+import { CaseStatus } from "@/lib/case-status";
 import { cn } from "@/lib/utils";
 
 // Dot + pill badge system. Each status has a distinct color family so
