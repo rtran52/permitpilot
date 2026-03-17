@@ -54,7 +54,7 @@ Create these manually through the UI so they look real, or seed them directly vi
 #a
 
 ---
-
+## Show a case that's been submitted and is in the permit office's hand and then sai dthat the purpose will show a case that's been submitted and is in the permit office's hands.
 ### Case 4 — "At the Permit Office" (Status: Submitted)
 **Purpose:** Show a case that's been submitted and is in the permit office's hands.
 
